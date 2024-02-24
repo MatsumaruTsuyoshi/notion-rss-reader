@@ -1,6 +1,7 @@
 import { Client } from '@notionhq/client'
 import { CreatePageParameters } from '@notionhq/client/build/src/api-endpoints'
 import ogp from 'ogp-parser'
+import { removeGoogleDomainUrl } from './helpers'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TODO = any
@@ -15,7 +16,11 @@ export const addFeedItems = async (
 
   newFeedItems.forEach(async (item) => {
     const { title, link, enclosure, pubDate } = item
-    const domain = link?.match(/^https?:\/{2,}(.*?)(?:\/|\?|#|$)/)
+
+    const removedGoogleDomainUrl = removeGoogleDomainUrl(link)
+    const domain = removedGoogleDomainUrl?.match(
+      /^https?:\/{2,}(.*?)(?:\/|\?|#|$)/
+    )
 
     const properties: TODO = {
       Title: {
@@ -28,7 +33,7 @@ export const addFeedItems = async (
         ],
       },
       URL: {
-        url: link,
+        url: removedGoogleDomainUrl,
       },
       Domain: {
         select: {
