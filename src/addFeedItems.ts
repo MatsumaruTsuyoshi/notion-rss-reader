@@ -14,7 +14,17 @@ export const addFeedItems = async (
   const notion = new Client({ auth: process.env.NOTION_KEY })
   const databaseId = process.env.NOTION_READER_DATABASE_ID || ''
 
-  newFeedItems.forEach(async (item) => {
+  // タイトルの重複をチェックするためのセットを用意
+  const titlesSet = new Set()
+
+  // 重複しないアイテムのみをフィルタリング
+  const uniqueFeedItems = newFeedItems.filter((item) => {
+    const isUnique = !titlesSet.has(item.title)
+    titlesSet.add(item.title)
+    return isUnique
+  })
+
+  uniqueFeedItems.forEach(async (item) => {
     const { title, link, enclosure, pubDate } = item
 
     const removedGoogleDomainUrl = removeGoogleDomainUrl(link)
